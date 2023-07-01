@@ -9,7 +9,7 @@ from aiohttp.client import _RequestContextManager
 from aiohttp.client_exceptions import ContentTypeError
 
 from config import Client
-from metrics.metrics import CLIENT_REQUEST_COUNT
+from metrics.metrics import CLIENT_REQUEST
 
 settings = Client()
 logger = getLogger(__name__)
@@ -35,7 +35,7 @@ def record_request_metrics(coroutine):
             else:
                 outcome = "SERVER_ERROR"
             url = sub(r"\d{2,}", "{int}", kwargs.get("url", "None"))
-            CLIENT_REQUEST_COUNT.labels(
+            CLIENT_REQUEST.labels(
                 kwargs.get("method"), outcome, url, status
             ).observe(req_elapsed_time)
 

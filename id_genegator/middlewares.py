@@ -4,7 +4,7 @@ from fastapi import Request, Response
 from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from metrics.metrics import SERVER_REQUEST_COUNT
+from metrics.metrics import SERVER_REQUEST
 
 
 class Monitoring(BaseHTTPMiddleware):
@@ -28,7 +28,7 @@ class Monitoring(BaseHTTPMiddleware):
                 response_status = "CLIENT_ERROR"
             else:
                 response_status = "SERVER_ERROR"
-            SERVER_REQUEST_COUNT.labels(
+            SERVER_REQUEST.labels(
                 request.method, response_status, request.url, status
             ).observe(time() - start_time)
 
