@@ -10,14 +10,14 @@ main_router = APIRouter(prefix="")
 logger = getLogger(__name__)
 
 # TODO: Should be in DB
-data = {"Yulia": {"age": 33}}
+data = {"Ivan": {"age": 33}}
 
 
-@main_router.get("/find_person/{name}")
-def find(name: str):
-    value = data.get(name)
+@main_router.get("/find_person")
+def find(first_name: str = "", last_name: str = ""):
+    value = data.get(first_name)
     if value is not None:
-        value["name"] = name
+        value["name"] = first_name
         logger.info(f"People finder send data {value}")
         return JSONResponse(status_code=HTTPStatus.OK, content=value)
     logger.error(f"Data not found in people finder")

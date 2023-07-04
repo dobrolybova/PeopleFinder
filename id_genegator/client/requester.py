@@ -26,17 +26,9 @@ def record_request_metrics(coroutine):
             return ret
         finally:
             req_elapsed_time = time.time() - req_start
-            if status is None:
-                outcome = "UNKNOWN"
-            elif status < 400:
-                outcome = "SUCCESS"
-            elif status < 500:
-                outcome = "CLIENT_ERROR"
-            else:
-                outcome = "SERVER_ERROR"
             url = sub(r"\d{2,}", "{int}", kwargs.get("url", "None"))
             CLIENT_REQUEST.labels(
-                kwargs.get("method"), outcome, url, status
+                kwargs.get("method"), url, status
             ).observe(req_elapsed_time)
 
     return wrapped

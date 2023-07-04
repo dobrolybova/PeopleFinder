@@ -5,5 +5,5 @@ from fastapi import Request
 logger = getLogger(__name__)
 
 
-async def log_incoming_body(name: str) -> None:
-    logger.info(f"New incoming request to people finder with param: {name}")
+async def log_incoming_body(first_name: str = "", last_name: str = "") -> None:
+    logger.info(f"New incoming request to people finder with first_name: {first_name} last_name: {last_name}")

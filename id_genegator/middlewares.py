@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from time import time
 
 from fastapi import Request, Response
@@ -19,17 +20,8 @@ class Monitoring(BaseHTTPMiddleware):
                 status = response.status_code
             else:
                 status = None
-
-            if status is None:
-                response_status = "UNKNOWN"
-            elif status < 400:
-                response_status = "OK"
-            elif status < 500:
-                response_status = "CLIENT_ERROR"
-            else:
-                response_status = "SERVER_ERROR"
             SERVER_REQUEST.labels(
-                request.method, response_status, request.url, status
+                request.method, request.url, status
             ).observe(time() - start_time)
 
 

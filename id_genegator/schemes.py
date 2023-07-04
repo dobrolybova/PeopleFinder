@@ -2,7 +2,8 @@ from pydantic import BaseModel
 
 
 class Request(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
 
 
 class Response(BaseModel):

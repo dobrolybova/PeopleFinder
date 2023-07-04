@@ -27,10 +27,11 @@ class PeopleFinderClient(Requester):
         return response
 
     async def find_person(self, body: Request) -> dict:
-        url = f"/find_person/{body.name}"
+        url = f"/find_person?first_name={body.first_name}&last_name={body.last_name}"
         method = "GET"
         response = await self.send_request(url, method)
         try:
+            # TODO: List should be returned
             people_finder_resp = PeopleFinderResponse(**response.json)
         except ValidationError as ex:
             logger.error(f"Wrong response from people finder {ex.__repr__()}")
