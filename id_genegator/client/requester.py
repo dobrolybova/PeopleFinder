@@ -6,7 +6,7 @@ from re import sub
 
 from aiohttp import ClientSession, ClientTimeout
 from aiohttp.client import _RequestContextManager
-from aiohttp.client_exceptions import ContentTypeError
+from aiohttp.client_exceptions import ContentTypeError, ClientResponseError
 
 from config import Client
 from metrics.metrics import CLIENT_REQUEST
@@ -24,6 +24,9 @@ def record_request_metrics(coroutine):
             ret = await coroutine(*args, **kwargs)
             status = ret.status
             return ret
+        except ClientResponseError as ex:
+            status = ex.status
+            raise ex
         finally:
             req_elapsed_time = time.time() - req_start
             url = sub(r"\d{2,}", "{int}", kwargs.get("url", "None"))
@@ -35,7 +38,7 @@ def record_request_metrics(coroutine):
 
 
 @dataclass
-class DecodedResponse:
+class ResponseData:
     status: int
     json: dict
 
@@ -53,9 +56,9 @@ class Requester:
         return self.session.request(method, url, **kwargs)
 
     @record_request_metrics
-    async def request_decoded(
+    async def request(
             self, method="GET", url="", exc_by_status=True, **kwargs
-    ) -> DecodedResponse:
+    ) -> ResponseData:
         async with self.get_session(method, url, **kwargs) as response:
             js = {}
             try:
@@ -70,4 +73,4 @@ class Requester:
                         f"body: {js}")
             if exc_by_status:
                 response.raise_for_status()
-            return DecodedResponse(response.status, js)
+            return ResponseData(response.status, js)

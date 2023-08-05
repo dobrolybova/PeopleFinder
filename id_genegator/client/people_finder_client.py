@@ -1,9 +1,9 @@
 from logging import getLogger
 
-from aiohttp import ClientResponseError, ClientConnectionError, ClientError
+from aiohttp import ClientResponseError
 from pydantic import ValidationError
 
-from client.requester import Requester, DecodedResponse
+from client.requester import Requester, ResponseData
 from exceptions import BadGateway
 from schemes import Request, PeopleFinderResponse
 
@@ -16,14 +16,11 @@ class PeopleFinderClient(Requester):
 
     async def send_request(self, url, method):
         try:
-            response: DecodedResponse = await self.request_decoded(url=url, method=method)
+            response: ResponseData = await self.request(url=url, method=method)
             logger.info(f"Response from client is received {response.json}")
         except ClientResponseError as ex:
             logger.error(f"Error during client request: {ex.message}")
             raise BadGateway(user_message=f"Error during client request: {ex.message}")
-        except (ClientResponseError, ClientConnectionError, ClientError) as ex:
-            logger.error(f"Error during client request: {ex.strerror}")
-            raise BadGateway(user_message=f"Error during client request: {ex.strerror}")
         return response
 
     async def find_person(self, body: Request) -> dict:

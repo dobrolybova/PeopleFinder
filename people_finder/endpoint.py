@@ -2,7 +2,6 @@ from http import HTTPStatus
 from logging import getLogger
 
 from fastapi import APIRouter
-from fastapi import Request
 from starlette.responses import JSONResponse
 
 main_router = APIRouter(prefix="")

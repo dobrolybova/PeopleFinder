@@ -1,4 +1,3 @@
-from http import HTTPStatus
 from time import time
 
 from fastapi import Request, Response
@@ -6,6 +5,14 @@ from starlette.middleware import Middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from metrics.metrics import SERVER_REQUEST
+
+
+def get_status(response: Response) -> int:
+    try:
+        status = response.status_code.value
+    except AttributeError:
+        status = response.status_code
+    return status
 
 
 class Monitoring(BaseHTTPMiddleware):
@@ -17,7 +24,7 @@ class Monitoring(BaseHTTPMiddleware):
             return response
         finally:
             if response is not None:
-                status = response.status_code
+                status = get_status(response)
             else:
                 status = None
             SERVER_REQUEST.labels(
