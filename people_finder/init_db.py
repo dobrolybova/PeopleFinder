@@ -1,9 +1,13 @@
+import asyncio
+import json
 import os
 
 import psycopg2
 from sqlalchemy.orm import declarative_base
 
-sql_commands = (
+from db_handler import DbHandler
+
+sql_commands_create = (
         # """
         # CREATE USER yulia WITH SUPERUSER PASSWORD 'yulia'
         # """,
@@ -12,8 +16,17 @@ sql_commands = (
         """,
 )
 
+sql_commands_drop = (
+        # """
+        # DROP USER yulia WITH SUPERUSER PASSWORD 'yulia'
+        # """,
+        """
+        DROP database people
+        """,
+)
 
-def create_db(commands: tuple[str]):
+
+def execute_db(commands: tuple[str]):
     conn = psycopg2.connect(database="postgres",
                             user="yulia",
                             password="yulia",
@@ -30,17 +43,29 @@ def create_db(commands: tuple[str]):
 Base = declarative_base()
 
 
+async def fill_db():
+    # TODO: move file name to config
+    with open("db_data.json") as fp:
+        data = fp.read()
+    json_list = []
+    for elem in data.split("\n"):
+        json_list.append(json.loads(elem))
+    db = DbHandler()
+    await db.fill_db(json_list)
+
+
 def start_db():
     try:
-        create_db(sql_commands)
+        execute_db(sql_commands_drop)
+        execute_db(sql_commands_create)
     except psycopg2.errors.DuplicateDatabase:
         pass
     os.system("alembic upgrade head")
 
 
-def fill_db_data():
-    pass
-
+async def task_f():
+    await asyncio.create_task(fill_db())
 
 if __name__ == "__main__":
     start_db()
+    asyncio.run(task_f())

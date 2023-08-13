@@ -13,6 +13,7 @@ settings = Settings()
 logger = getLogger(__name__)
 basicConfig(filename=settings.LOG_FILE, filemode='w', level=settings.LOG_LEVEL, format=settings.LOG_FORMAT)
 
+
 app = FastAPI()
 
 app.include_router(main_router, dependencies=[Depends(log_incoming_body)])

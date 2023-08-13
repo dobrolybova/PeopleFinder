@@ -8,7 +8,7 @@ main_router = APIRouter(prefix="")
 
 logger = getLogger(__name__)
 
-# TODO: Should be in DB
+# TODO: Take from DB
 data = {"Ivan": {"age": 33}}
 
 
