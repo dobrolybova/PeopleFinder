@@ -1,7 +1,5 @@
 from logging import getLogger
 
-from fastapi import Request
-
 logger = getLogger(__name__)
 
 

@@ -33,4 +33,4 @@ class PeopleFinderClient(Requester):
         except ValidationError as ex:
             logger.error(f"Wrong response from people finder {ex.__repr__()}")
             raise BadGateway(user_message=f"Wrong response from people finder {ex.__repr__()}")
-        return people_finder_resp.dict()
+        return people_finder_resp.model_dump()

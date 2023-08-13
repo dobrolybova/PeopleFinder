@@ -55,11 +55,8 @@ async def fill_db():
 
 
 def start_db():
-    try:
-        execute_db(sql_commands_drop)
-        execute_db(sql_commands_create)
-    except psycopg2.errors.DuplicateDatabase:
-        pass
+    execute_db(sql_commands_drop)
+    execute_db(sql_commands_create)
     os.system("alembic upgrade head")
 
 

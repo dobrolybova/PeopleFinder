@@ -1,5 +1,6 @@
 from sqlalchemy import Integer, Column, Text
 from sqlalchemy.orm import declarative_base
+from pydantic import BaseModel
 
 base = declarative_base()
 
@@ -11,6 +12,16 @@ class People(base):
     last_name = Column(Text())
     age = Column(Integer())
     email = Column(Text())
-    phone = Column(Text())
+    msisdn = Column(Text())
     city = Column(Text())
+
+
+class PeopleResponse(BaseModel):
+    first_name: str
+    last_name: str
+    age: int
+    email: str
+    msisdn: str
+    city: str
+
 

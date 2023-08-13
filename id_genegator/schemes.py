@@ -7,11 +7,19 @@ class Request(BaseModel):
 
 
 class Response(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
     age: int
+    email: str
+    msisdn: str
+    city: str
     id: str
 
 
 class PeopleFinderResponse(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
     age: int
+    email: str
+    msisdn: str
+    city: str

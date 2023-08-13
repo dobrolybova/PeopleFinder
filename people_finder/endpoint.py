@@ -2,23 +2,24 @@ from http import HTTPStatus
 from logging import getLogger
 
 from fastapi import APIRouter
+from sqlalchemy.exc import NoResultFound
 from starlette.responses import JSONResponse
+
+from db_handler import DbHandler
 
 main_router = APIRouter(prefix="")
 
 logger = getLogger(__name__)
 
-# TODO: Take from DB
-data = {"Ivan": {"age": 33}}
 
-
+# TODO: find by different attibutes
+# TODO: DbHandler in dep
 @main_router.get("/find_person")
-def find(first_name: str = "", last_name: str = ""):
-    value = data.get(first_name)
-    if value is not None:
-        value["name"] = first_name
-        logger.info(f"People finder send data {value}")
-        return JSONResponse(status_code=HTTPStatus.OK, content=value)
-    logger.error(f"Data not found in people finder")
-    return JSONResponse(status_code=HTTPStatus.BAD_REQUEST, content={})
-
+async def find(first_name: str = "", last_name: str = ""):
+    db = DbHandler()
+    try:
+        response = await db.get_record_by_full_name(first_name, last_name)
+        return JSONResponse(status_code=HTTPStatus.OK, content=response.model_dump())
+    except NoResultFound:
+        logger.error(f"Data not found in people finder")
+        return JSONResponse(status_code=HTTPStatus.BAD_REQUEST, content={})
