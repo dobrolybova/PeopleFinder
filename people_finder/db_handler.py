@@ -37,67 +37,38 @@ class DbHandler:
                 await session.delete(People(**record))
                 await session.commit()
 
-    async def get_record_by_full_name(self, first_name: str, last_name: str) -> PeopleResponse:
+    async def get_records(self,
+                          first_name: str | None = None,
+                          last_name: str | None = None,
+                          age: int | None = None,
+                          email: str | None = None,
+                          msisdn: str | None = None,
+                          city: str | None = None) -> Sequence[PeopleResponse]:
         async with self.async_session() as session:
             async with session.begin():
-                result = await session.scalars(select(People).where(People.first_name == first_name and
-                                                                    People.last_name == last_name))
-                row = result.one()
-                return PeopleResponse(first_name=row.first_name,
-                                      last_name=row.last_name,
-                                      age=row.age,
-                                      msisdn=row.msisdn,
-                                      email=row.email,
-                                      city=row.city)
+                query = select(People)
+                # TODO: refactor
+                if first_name is not None:
+                    query = query.where(People.first_name == first_name)
+                if last_name is not None:
+                    query = query.where(People.last_name == last_name)
+                if age is not None:
+                    query = query.where(People.age == age)
+                if email is not None:
+                    query = query.where(People.email == email)
+                if msisdn is not None:
+                    query = query.where(People.msisdn == msisdn)
+                if city is not None:
+                    query = query.where(People.city == city)
 
-    async def get_record_by_email(self, email: str) -> PeopleResponse:
-        async with self.async_session() as session:
-            async with session.begin():
-                result = await session.scalars(select(People).where(People.email == email))
-                row = result.one()
-                return PeopleResponse(first_name=row.first_name,
-                                      last_name=row.last_name,
-                                      age=row.age,
-                                      msisdn=row.msisdn,
-                                      email=row.email,
-                                      city=row.city)
-
-    async def get_record_by_msisdn(self, msisdn: str) -> PeopleResponse:
-        async with self.async_session() as session:
-            async with session.begin():
-                result = await session.scalars(select(People).where(People.msisdn == msisdn))
-                row = result.one()
-                return PeopleResponse(first_name=row.first_name,
-                                      last_name=row.last_name,
-                                      age=row.age,
-                                      msisdn=row.msisdn,
-                                      email=row.email,
-                                      city=row.city)
-
-    # TODO: return values for lists
-    async def get_record_by_first_name(self, first_name: str) -> Sequence[People]:
-        async with self.async_session() as session:
-            async with session.begin():
-                result = await session.scalars(select(People).where(People.first_name == first_name))
-                return result.fetchall()
-
-    async def get_record_by_last_name(self, last_name: str) -> Sequence[People]:
-        async with self.async_session() as session:
-            async with session.begin():
-                result = await session.scalars(select(People).where(People.last_name == last_name))
-                return result.fetchall()
-
-    async def get_record_by_age(self, age: int) -> Sequence[People]:
-        async with self.async_session() as session:
-            async with session.begin():
-                result = await session.scalars(select(People).where(People.age == age))
-                return result.fetchall()
-
-    async def get_record_by_city(self, city: int) -> Sequence[People]:
-        async with self.async_session() as session:
-            async with session.begin():
-                result = await session.scalars(select(People).where(People.city == city))
-                return result.fetchall()
+                result = await session.scalars(query)
+                raw = result.fetchall()
+                return [PeopleResponse(first_name=elem.first_name,
+                                       last_name=elem.last_name,
+                                       age=elem.age,
+                                       msisdn=elem.msisdn,
+                                       email=elem.email,
+                                       city=elem.city) for elem in raw]
 
     async def fill_db(self, records: list[dict[str, str | int]]) -> None:
         for record in records:

@@ -12,14 +12,24 @@ main_router = APIRouter(prefix="")
 logger = getLogger(__name__)
 
 
-# TODO: find by different attibutes
 # TODO: DbHandler in dep
 @main_router.get("/find_person")
-async def find(first_name: str = "", last_name: str = ""):
+async def find(first_name: str | None = None,
+               last_name: str | None = None,
+               age: int | None = None,
+               email: str | None = None,
+               msisdn: str | None = None,
+               city: str | None = None):
     db = DbHandler()
     try:
-        response = await db.get_record_by_full_name(first_name, last_name)
-        return JSONResponse(status_code=HTTPStatus.OK, content=response.model_dump())
+        response = await db.get_records(first_name=first_name,
+                                        last_name=last_name,
+                                        age=age,
+                                        email=email,
+                                        msisdn=msisdn,
+                                        city=city)
+        content = [r.model_dump() for r in response]
+        return JSONResponse(status_code=HTTPStatus.OK, content={"persons": content})
     except NoResultFound:
         logger.error(f"Data not found in people finder")
         return JSONResponse(status_code=HTTPStatus.BAD_REQUEST, content={})

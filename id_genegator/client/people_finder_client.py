@@ -23,14 +23,15 @@ class PeopleFinderClient(Requester):
             raise BadGateway(user_message=f"Error during client request: {ex.message}")
         return response
 
-    async def find_person(self, body: Request) -> dict:
+    async def find_person(self, body: Request) -> list[dict]:
+        # TODO: construct url if parameters are optional
         url = f"/find_person?first_name={body.first_name}&last_name={body.last_name}"
         method = "GET"
         response = await self.send_request(url, method)
+        persons = response.json.get("persons")
         try:
-            # TODO: List should be returned
-            people_finder_resp = PeopleFinderResponse(**response.json)
+            content = [PeopleFinderResponse(**r).model_dump() for r in persons]
         except ValidationError as ex:
             logger.error(f"Wrong response from people finder {ex.__repr__()}")
             raise BadGateway(user_message=f"Wrong response from people finder {ex.__repr__()}")
-        return people_finder_resp.model_dump()
+        return content

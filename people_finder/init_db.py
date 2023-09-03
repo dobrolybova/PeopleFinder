@@ -5,22 +5,25 @@ import os
 import psycopg2
 from sqlalchemy.orm import declarative_base
 
+from config import AppSettings
 from db_handler import DbHandler
 
+settings = AppSettings()
+
 sql_commands_create = (
-        # """
-        # CREATE USER yulia WITH SUPERUSER PASSWORD 'yulia'
-        # """,
-        """
+    # """
+    # CREATE USER yulia WITH SUPERUSER PASSWORD 'yulia'
+    # """,
+    """
         CREATE database people
         """,
 )
 
 sql_commands_drop = (
-        # """
-        # DROP USER yulia WITH SUPERUSER PASSWORD 'yulia'
-        # """,
-        """
+    # """
+    # DROP USER yulia WITH SUPERUSER PASSWORD 'yulia'
+    # """,
+    """
         DROP database people
         """,
 )
@@ -44,8 +47,7 @@ Base = declarative_base()
 
 
 async def fill_db():
-    # TODO: move file name to config
-    with open("db_data.json") as fp:
+    with open(settings.DB_INIT_DATA_FILE_NAME + ".json") as fp:
         data = fp.read()
     json_list = []
     for elem in data.split("\n"):
@@ -62,6 +64,7 @@ def start_db():
 
 async def task_f():
     await asyncio.create_task(fill_db())
+
 
 if __name__ == "__main__":
     start_db()

@@ -17,7 +17,8 @@ from logging import getLogger, basicConfig
 
 settings = Settings()
 
-
+# TODO: error messages in response
+# TODO: put in Docker
 logger = getLogger(__name__)
 basicConfig(filename=settings.LOG_FILE, filemode='w', level=settings.LOG_LEVEL, format=settings.LOG_FORMAT)
 

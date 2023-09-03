@@ -3,11 +3,11 @@ from logging import getLogger, basicConfig
 import uvicorn as uvicorn
 from fastapi import FastAPI, Depends
 
-from config import Settings
+from config import AppSettings
 from dependencies import log_incoming_body
 from endpoint import main_router
 
-settings = Settings()
+settings = AppSettings()
 
 
 logger = getLogger(__name__)
