@@ -46,8 +46,8 @@ class DbHandler:
                           city: str | None = None) -> Sequence[PeopleResponse]:
         async with self.async_session() as session:
             async with session.begin():
+
                 query = select(People)
-                # TODO: refactor
                 if first_name is not None:
                     query = query.where(People.first_name == first_name)
                 if last_name is not None:
