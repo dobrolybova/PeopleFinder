@@ -6,6 +6,7 @@ from pydantic import ValidationError
 from client.requester import Requester, ResponseData
 from exceptions import BadGateway
 from schemes import Request, PeopleFinderResponse
+from utils import construct_url
 
 logger = getLogger(__name__)
 
@@ -24,8 +25,7 @@ class PeopleFinderClient(Requester):
         return response
 
     async def find_person(self, body: Request) -> list[dict]:
-        # TODO: construct url if parameters are optional
-        url = f"/find_person?first_name={body.first_name}&last_name={body.last_name}"
+        url = construct_url(body)
         method = "GET"
         response = await self.send_request(url, method)
         persons = response.json.get("persons")
