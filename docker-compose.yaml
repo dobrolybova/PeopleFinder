@@ -1,0 +1,27 @@
+version: "3.0"
+services:
+  id_generator:
+    build:
+      context: id_generator
+      dockerfile: Dockerfile
+    command: python3 main.py
+    network_mode: host
+    working_dir: /ReopleFinder/id_generator
+    volumes:
+      - .:/ReopleFinder
+  people_finder:
+    build:
+      context: people_finder
+      dockerfile: Dockerfile
+    command: python3 main.py
+    network_mode: host
+    working_dir: /ReopleFinder/people_finder
+    volumes:
+      - .:/ReopleFinder
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_PASSWORD: yulia
