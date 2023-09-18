@@ -1,3 +1,4 @@
+import json
 from functools import lru_cache
 from logging import getLogger
 
@@ -16,5 +17,8 @@ def get_people_finder_client() -> PeopleFinderClient:
 
 
 async def log_incoming_body(body: Request) -> None:
-    req_body = await body.json()
-    logger.info(f"New incoming request with body: {req_body}")
+    try:
+        req_body = await body.json()
+        logger.info(f"New incoming request with body: {req_body}")
+    except json.decoder.JSONDecodeError:
+        logger.error(f"New incoming request, with empty or not json body")

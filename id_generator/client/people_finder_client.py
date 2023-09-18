@@ -18,10 +18,10 @@ class PeopleFinderClient(Requester):
     async def send_request(self, url, method):
         try:
             response: ResponseData = await self.request(url=url, method=method)
-            logger.info(f"Response from client is received {response.json}")
         except ClientResponseError as ex:
             logger.error(f"Error during client request: {ex.message}")
             raise BadGateway(user_message=f"Error during client request: {ex.message}")
+        logger.info(f"Response from client is received {response.json}")
         return response
 
     async def find_person(self, body: Request) -> list[dict]:
@@ -29,6 +29,8 @@ class PeopleFinderClient(Requester):
         method = "GET"
         response = await self.send_request(url, method)
         persons = response.json.get("persons")
+        if not persons:
+            persons = []
         try:
             content = [PeopleFinderResponse(**r).model_dump() for r in persons]
         except ValidationError as ex:
