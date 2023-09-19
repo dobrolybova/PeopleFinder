@@ -132,15 +132,21 @@ async def test_client_nok(
             await test_class.find_person(Request(**req_body))
 
 
-# TODO: in one template + error messages
 @pytest.mark.parametrize(
     "url, json_res, status",
     [
         ("/some_root", {'detail': 'Not Found'}, HTTPStatus.NOT_FOUND),
-        ("/find", {'errorCode': '', 'userMessage': ''}, HTTPStatus.BAD_REQUEST)
+        ("/find",
+         {'error_code': 400,
+          'user_message': "BAD_REQUEST [{'type': 'missing', 'loc': ('body',), 'msg': "
+                          "'Field required', 'input': None, 'url': "
+                          "'https://errors.pydantic.dev/2.1/v/missing'}]"
+          },
+         HTTPStatus.BAD_REQUEST
+         )
     ]
 )
-def test_find_nok(client, url, json_res, status):
+def test_find_no_body(client, url, json_res, status):
     res = client.post(url)
     assert res.json() == json_res
     assert res.status_code == status
@@ -150,27 +156,37 @@ def test_find_nok(client, url, json_res, status):
     "app_with_deps, request_data, expected, response_status",
     [
         (
-            {get_people_finder_client: FakeClient},
-            req_body,
-            {'persons': [person_data_ivan, person_data_oleg]},
-            HTTPStatus.OK
+                {get_people_finder_client: FakeClient},
+                req_body,
+                {'persons': [person_data_ivan, person_data_oleg]},
+                HTTPStatus.OK
         ),
         (
-            {get_people_finder_client: FakeClientEmpty},
-            req_body,
-            {'persons': []},
-            HTTPStatus.OK
+                {get_people_finder_client: FakeClientEmpty},
+                req_body,
+                {'persons': []},
+                HTTPStatus.OK
         ),
         (
                 {get_people_finder_client: FakeClientException},
                 req_body,
-                {'errorCode': 'BAD_GATEWAY', 'userMessage': 'BAD GATEWAY'},
+                {'errorCode': 502, 'userMessage': 'BAD GATEWAY'},
                 HTTPStatus.BAD_GATEWAY
+        ),
+        (
+            {get_people_finder_client: FakeClientException},
+            {"name": "name"},
+            {'error_code': 400,
+             'user_message': "BAD_REQUEST [{'type': 'extra_forbidden', 'loc': ('body', "
+                             "'name'), 'msg': 'Extra inputs are not permitted', 'input': "
+                             "'name', 'url': "
+                             "'https://errors.pydantic.dev/2.1/v/extra_forbidden'}]"},
+            HTTPStatus.BAD_REQUEST
         ),
     ],
     indirect=["app_with_deps"],
 )
-def test_find(app_with_deps, request_data, expected, response_status):
+def test_find_with_body(app_with_deps, request_data, expected, response_status):
     client = TestClient(app_with_deps)
     res = client.post('/find', json=request_data)
     assert res.json() == expected

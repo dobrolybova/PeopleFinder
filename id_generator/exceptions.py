@@ -8,8 +8,8 @@ from pydantic import BaseModel, Field
 
 
 class CommonExceptionFormat(BaseModel):
-    user_message: Optional[Any] = Field(default="", alias="userMessage")
-    error_code: Optional[Any] = Field(default="", alias="errorCode")
+    user_message: Optional[Any] = Field(default="")
+    error_code: Optional[Any] = Field(default="")
 
     class Config:
         allow_population_by_field_name = True
@@ -26,7 +26,7 @@ class ServiceError(Exception):
         self.userMessage = kwargs.get(
             "user_message", self.http_status.__dict__.get("_name_").replace("_", " ")
         )
-        self.errorCode = kwargs.get("error_code", self.http_status.name)
+        self.errorCode = kwargs.get("error_code", self.http_status.value)
         super(ServiceError, self).__init__()
 
     def to_dict(self):
@@ -51,12 +51,13 @@ def service_error_exc_handler(_: Request, exc: ServiceError) -> JSONResponse:
 def request_validation_exc_handler(
         _: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    error_format = CommonExceptionFormat(user_message=str(exc.errors()),
-                                         error_code=HTTPStatus.BAD_REQUEST.name).dict(by_alias=True)
+    error_format = CommonExceptionFormat(user_message=HTTPStatus.BAD_REQUEST.name + " " + str(exc.errors()),
+                                         error_code=HTTPStatus.BAD_REQUEST.value).model_dump(by_alias=True)
     return JSONResponse(status_code=HTTPStatus.BAD_REQUEST, content=error_format)
 
 
 def exc_handler(_: Request, exc: Type[Exception]) -> JSONResponse:
     error_format = CommonExceptionFormat(
-        user_message=exc.__class__.__name__, error_code=HTTPStatus.INTERNAL_SERVER_ERROR.name).dict(by_alias=True)
+        user_message=HTTPStatus.INTERNAL_SERVER_ERROR.name + " " + exc.__class__.__name__,
+        error_code=HTTPStatus.INTERNAL_SERVER_ERROR.value).model_dump(by_alias=True)
     return JSONResponse(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, content=error_format)

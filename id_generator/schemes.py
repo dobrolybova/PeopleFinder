@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class Request(BaseModel):
@@ -10,6 +10,9 @@ class Request(BaseModel):
     email: Optional[str] = None
     msisdn: Optional[str] = None
     city: Optional[str] = None
+
+    class Config:
+        extra = Extra.forbid
 
 
 class Response(BaseModel):
