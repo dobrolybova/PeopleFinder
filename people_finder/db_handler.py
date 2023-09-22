@@ -5,7 +5,7 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.future import select
 
-from schemes import People, PeopleResponse
+from pf_schemes import People, PeopleResponse
 
 logger = getLogger(__name__)
 

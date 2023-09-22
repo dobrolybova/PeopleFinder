@@ -3,9 +3,9 @@ from logging import getLogger, basicConfig
 import uvicorn as uvicorn
 from fastapi import FastAPI, Depends
 
-from config import AppSettings
-from dependencies import log_incoming_body
-from endpoint import main_router
+from pf_config import AppSettings
+from pf_dependencies import log_incoming_body
+from pf_endpoint import main_router
 
 settings = AppSettings()
 

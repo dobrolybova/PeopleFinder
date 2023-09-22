@@ -5,7 +5,7 @@ import os
 import psycopg2
 from sqlalchemy.orm import declarative_base
 
-from config import AppSettings
+from pf_config import AppSettings
 from db_handler import DbHandler
 
 settings = AppSettings()

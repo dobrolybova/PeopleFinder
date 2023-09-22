@@ -6,7 +6,7 @@ from sqlalchemy.exc import NoResultFound
 from starlette.responses import JSONResponse
 
 from db_handler import DbHandler
-from dependencies import db_handler
+from pf_dependencies import db_handler
 
 main_router = APIRouter(prefix="")
 

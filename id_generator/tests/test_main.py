@@ -44,14 +44,8 @@ class FakeClientException:
         raise BadGateway
 
 
-@pytest.mark.parametrize(
-    "url",
-    [
-        "/prometheus"
-    ]
-)
-def test_metrics(client, url):
-    response = client.get(url)
+def test_metrics(client):
+    response = client.get("/prometheus")
     assert response.status_code == HTTPStatus.OK
 
 
@@ -60,16 +54,16 @@ def test_metrics(client, url):
     "status, json_body, content_type, expected",
     [
         (
-                HTTPStatus.OK,
-                {"persons": [person_data_ivan, person_data_oleg]},
-                application_json,
-                [person_data_ivan, person_data_oleg],
+            HTTPStatus.OK,
+            {"persons": [person_data_ivan, person_data_oleg]},
+            application_json,
+            [person_data_ivan, person_data_oleg],
         ),
         (
-                HTTPStatus.OK,
-                {},
-                application_json,
-                [],
+            HTTPStatus.OK,
+            {},
+            application_json,
+            [],
         ),
     ],
 )
@@ -99,16 +93,16 @@ async def test_client_ok(
     "status, json_body, content_type, expected",
     [
         (
-                HTTPStatus.OK,
-                {
-                    "persons": [
-                        {
-                            "name": "Ivan",
-                        }
-                    ]
-                },
-                application_json,
-                BadGateway
+            HTTPStatus.OK,
+            {
+                "persons": [
+                    {
+                        "name": "Ivan",
+                    }
+                ]
+            },
+            application_json,
+            BadGateway
         ),
     ],
 )
@@ -156,22 +150,22 @@ def test_find_no_body(client, url, json_res, status):
     "app_with_deps, request_data, expected, response_status",
     [
         (
-                {get_people_finder_client: FakeClient},
-                req_body,
-                {'persons': [person_data_ivan, person_data_oleg]},
-                HTTPStatus.OK
+            {get_people_finder_client: FakeClient},
+            req_body,
+            {'persons': [person_data_ivan, person_data_oleg]},
+            HTTPStatus.OK
         ),
         (
-                {get_people_finder_client: FakeClientEmpty},
-                req_body,
-                {'persons': []},
-                HTTPStatus.OK
+            {get_people_finder_client: FakeClientEmpty},
+            req_body,
+            {'persons': []},
+            HTTPStatus.OK
         ),
         (
-                {get_people_finder_client: FakeClientException},
-                req_body,
-                {'errorCode': 502, 'userMessage': 'BAD GATEWAY'},
-                HTTPStatus.BAD_GATEWAY
+            {get_people_finder_client: FakeClientException},
+            req_body,
+            {'errorCode': 502, 'userMessage': 'BAD GATEWAY'},
+            HTTPStatus.BAD_GATEWAY
         ),
         (
             {get_people_finder_client: FakeClientException},
